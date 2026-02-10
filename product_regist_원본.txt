@@ -3,27 +3,37 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
-<title>차대번호 등록 시스템</title>
+<title>제품 등록 시스템</title>
 <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@100;300;400;500;700;900&display=swap" rel="stylesheet">
 <style>
   :root { --ci-blue: #2f6286; --ci-green: #72bf44; --ci-dark: #231f20; --ci-white: #ffffff; }
   body, html { margin: 0; padding: 0; font-family: 'Noto Sans KR', sans-serif; background-color: #f5f7fa; -webkit-user-select:none; user-select:none; }
-  
   .inquiry-container { max-width: 600px; margin: 40px auto; padding: 30px; background-color: var(--ci-white); border-radius: 12px; box-shadow: 0 5px 20px rgba(0,0,0,0.05); position: relative; }
-  
   .nav-header { display: flex; justify-content: flex-end; margin-bottom: 10px; }
   .home-btn { text-decoration: none; font-size: 13px; color: #888; font-weight: 500; display: flex; align-items: center; transition: color 0.3s; }
   .home-btn:hover { color: var(--ci-blue); }
-
   .inquiry-container h2 { text-align: center; margin-bottom: 25px; color: var(--ci-dark); font-size: 24px; font-weight: 800; }
   .required-mark { color: #e74c3c; margin-left: 3px; font-weight: bold; }
-
-  .privacy-box { background-color: #f9f9f9; padding: 15px; border-radius: 6px; margin-bottom: 15px; border: 1px solid #eee; }
-  .privacy-header { display: flex; align-items: center; margin-bottom: 8px; }
-  .privacy-check { font-size: 14px; font-weight: bold; color: var(--ci-dark); cursor: pointer; display: flex; align-items: center; }
-  .privacy-check input { width: 18px; height: 18px; margin-right: 8px; accent-color: var(--ci-blue); cursor: pointer; }
-  .privacy-content { font-size: 12px; color: #666; background-color: #fff; padding: 10px; border: 1px solid #ddd; border-radius: 4px; height: 60px; overflow-y: auto; line-height: 1.5; }
   .optional-mark { color: #888; font-weight: normal; font-size: 12px; margin-left: 5px; }
+
+  /* 약관 스타일 */
+  .agree-all-box { background-color: #f0f8ff; padding: 15px; border-radius: 8px; margin-bottom: 15px; border: 1px solid var(--ci-blue); display: flex; align-items: center; }
+  .agree-all-label { font-size: 15px; font-weight: 800; color: var(--ci-blue); cursor: pointer; display: flex; align-items: center; width: 100%; }
+  .agree-all-label input { width: 20px; height: 20px; margin-right: 10px; accent-color: var(--ci-blue); cursor: pointer; }
+
+  .term-item { border: 1px solid #eee; border-radius: 8px; margin-bottom: 10px; background-color: #fff; display: flex; justify-content: space-between; align-items: center; padding: 12px 15px; }
+  .term-label { display: flex; align-items: center; font-size: 13px; font-weight: bold; color: var(--ci-dark); cursor: pointer; flex: 1; }
+  .term-label input { width: 18px; height: 18px; margin-right: 10px; accent-color: var(--ci-blue); cursor: pointer; }
+  .term-view-btn { font-size: 12px; color: #888; background: #f5f5f5; border: 1px solid #ddd; border-radius: 4px; padding: 4px 8px; cursor: pointer; margin-left: 10px; }
+
+  /* 모달 팝업 */
+  .modal-overlay { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); z-index: 2000; align-items: center; justify-content: center; }
+  .modal-box { background: white; width: 90%; max-width: 500px; max-height: 80vh; border-radius: 12px; display: flex; flex-direction: column; overflow: hidden; box-shadow: 0 5px 30px rgba(0,0,0,0.3); }
+  .modal-header { padding: 15px; background: #f0f4f8; border-bottom: 1px solid #eee; font-weight: bold; color: var(--ci-dark); display: flex; justify-content: space-between; align-items: center; }
+  .modal-close { background: none; border: none; font-size: 20px; cursor: pointer; color: #666; }
+  .modal-content { padding: 20px; overflow-y: auto; font-size: 13px; line-height: 1.6; color: #444; white-space: pre-wrap; }
+  .modal-footer { padding: 15px; border-top: 1px solid #eee; text-align: center; }
+  .modal-btn { background: var(--ci-blue); color: white; border: none; padding: 10px 20px; border-radius: 6px; cursor: pointer; font-weight: bold; }
 
   .form-row { display: flex; gap: 15px; margin-bottom: 15px; }
   .form-row .form-group { flex: 1; margin-bottom: 0; position: relative; }
@@ -31,73 +41,104 @@
   .form-group label { display: block; margin-bottom: 6px; font-weight: 700; font-size: 13px; color: #555; }
   .form-group input[type="text"], .form-group select, .form-group input[type="file"] { width: 100%; padding: 12px; border: 1px solid #ccc; border-radius: 6px; box-sizing: border-box; font-size: 15px; transition: border 0.3s; }
   .form-group input:focus, .form-group select:focus { border-color: var(--ci-blue); outline: none; }
+  
+  /* 시선 집중 애니메이션 & 말풍선 */
+  @keyframes attention-pulse {
+    0% { box-shadow: 0 0 0 0 rgba(47, 98, 134, 0.7); border-color: var(--ci-blue); }
+    70% { box-shadow: 0 0 0 10px rgba(47, 98, 134, 0); border-color: var(--ci-blue); }
+    100% { box-shadow: 0 0 0 0 rgba(47, 98, 134, 0); }
+  }
+  @keyframes float-badge {
+    0%, 100% { transform: translateY(0); }
+    50% { transform: translateY(-5px); }
+  }
+  
+  .highlight-input { animation: attention-pulse 2s infinite; }
+  
+  /* 입력칸 감싸는 래퍼 (위치 기준점) */
+  .input-wrapper { position: relative; }
 
+  .step-badge {
+    position: absolute;
+    bottom: 100%; /* 입력칸 바로 위 */
+    right: 0;     /* 오른쪽 정렬 */
+    margin-bottom: 8px; /* 간격 */
+    background-color: var(--ci-blue);
+    color: white;
+    font-size: 11px;
+    font-weight: bold;
+    padding: 5px 10px;
+    border-radius: 20px;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+    animation: float-badge 1.5s ease-in-out infinite;
+    z-index: 10;
+    white-space: nowrap;
+  }
+  .step-badge::after { /* 말풍선 꼬리 */
+    content: ''; position: absolute; top: 100%; right: 15px;
+    border-width: 5px 5px 0; border-style: solid;
+    border-color: var(--ci-blue) transparent transparent transparent;
+  }
+
+  /* 미리보기 이미지 스타일 */
+  #imgPreview { display: none; max-width: 100px; max-height: 100px; margin-top: 10px; border-radius: 6px; border: 1px solid #ddd; }
+
+  /* 자동완성 */
   .suggestions-list { position: absolute; top: 100%; left: 0; width: 100%; max-height: 200px; overflow-y: auto; background: #fff; border: 1px solid #ccc; border-radius: 0 0 6px 6px; z-index: 1000; list-style: none; padding: 0; margin: 0; display: none; box-shadow: 0 4px 10px rgba(0,0,0,0.1); }
   .suggestions-list li { padding: 12px; cursor: pointer; border-bottom: 1px solid #eee; font-size: 14px; }
   .suggestions-list li:hover { background-color: #f0f8ff; color: var(--ci-blue); }
   .no-result-item { padding: 12px; color: #999; font-size: 13px; text-align: center; }
-
   .serial-guide-box { background-color: #eef6fb; border: 1px solid #dbe2e8; border-radius: 6px; padding: 12px; margin-bottom: 10px; text-align: center; }
   .serial-guide-box img { max-width: 100%; border-radius: 4px; border: 1px solid #ccc; margin-bottom: 5px; }
   .serial-guide-text { font-size: 12px; color: var(--ci-blue); margin-top: 5px; font-weight: 500; }
   .error-msg { color: #e74c3c; font-size: 12px; margin-top: 5px; display: none; font-weight: bold; }
   .store-info-display { font-size: 13px; color: var(--ci-dark); background-color: #f2f2f2; padding: 12px; border-radius: 6px; margin-top: 5px; display: none; line-height: 1.6; border-left: 3px solid var(--ci-green); }
-
   .submit-btn { width: 100%; padding: 16px; background-color: var(--ci-blue); color: white; border: none; border-radius: 8px; font-size: 16px; cursor: pointer; margin-top: 15px; font-weight: 800; transition: background 0.3s; }
-  .submit-btn:hover { background-color: #244d6b; }
   .submit-btn:disabled { background-color: #ccc; cursor: not-allowed; }
 
-  /* [NEW] 로딩 애니메이션 스타일 */
-  .loading-container { 
-    display: none; /* 평소엔 숨김 */
-    align-items: center; 
-    justify-content: center; 
-    margin-top: 15px; 
-    background-color: #f8f9fa;
-    padding: 15px;
-    border-radius: 8px;
-  }
-  .spinner {
-    border: 3px solid #f3f3f3; /* 회색 테두리 */
-    border-top: 3px solid var(--ci-blue); /* 파란색 포인트 */
-    border-radius: 50%;
-    width: 20px;
-    height: 20px;
-    animation: spin 1s linear infinite;
-    margin-right: 10px;
-  }
+  /* 로딩 & 대기 안내 */
+  .loading-container { display: none; flex-direction: column; align-items: center; justify-content: center; margin-top: 15px; background-color: #f8f9fa; padding: 20px; border-radius: 8px; border: 1px solid #eee; }
+  .spinner { border: 4px solid #f3f3f3; border-top: 4px solid var(--ci-blue); border-radius: 50%; width: 30px; height: 30px; animation: spin 1s linear infinite; margin-bottom: 10px; }
   @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
-  .loading-msg { font-size: 13px; font-weight: bold; color: var(--ci-dark); }
+  .loading-msg { font-size: 14px; font-weight: bold; color: var(--ci-dark); text-align: center; }
+  .wait-msg { font-size: 12px; color: #666; margin-top: 5px; text-align: center; }
 
   .footer-logo { text-align: center; margin-top: 40px; padding-top: 20px; border-top: 1px dashed #eee; }
   .footer-logo img { height: 24px; opacity: 0.8; }
-
   @media (max-width: 500px) { .inquiry-container { margin: 15px; padding: 20px; } .form-row { flex-direction: column; gap: 0; } }
 </style>
 </head>
 <body oncontextmenu="return false" ondragstart="return false" onselectstart="return false">
-
 <div class="inquiry-container">
   <div class="nav-header"><a href="./main.html" class="home-btn">🏠 메인으로</a></div>
-  <h2>차대번호 등록 및 보증 연장</h2>
+  <h2>제품 등록 및 보증 연장</h2>
   
   <form id="registForm">
-    <div class="privacy-box">
-      <div class="privacy-header"><label class="privacy-check"><input type="checkbox" id="privacyAgree">개인정보 수집 및 이용에 동의합니다. <span class="required-mark">(필수)</span></label></div>
-      <div class="privacy-content"><strong>[개인정보 수집 및 이용 목적]</strong><br>고객님의 제품 정품 등록 확인 및 보증 기간 연장 서비스 제공, AS 접수 시 신속한 고객 확인, 그리고 제품 관련 중요 업데이트 안내를 위해 필요한 최소한의 개인정보를 수집하고 있습니다.</div>
-    </div>
-    <div class="privacy-box">
-      <div class="privacy-header"><label class="privacy-check"><input type="checkbox" id="marketingAgree">마케팅 정보 수신 및 활용에 동의합니다. <span class="optional-mark">(선택)</span></label></div>
-      <div class="privacy-content"><strong>[마케팅 활용 동의]</strong><br>신제품 출시, 이벤트 및 프로모션 안내 등 퀄리스포츠의 다양한 혜택 정보를 받아보실 수 있습니다.</div>
+    <div class="agree-all-box">
+      <label class="agree-all-label"><input type="checkbox" id="allAgree"> 약관 전체 동의하기</label>
     </div>
 
-    <div class="form-group">
-      <label for="serialNo">차대번호 <span class="required-mark">*</span></label>
-      <div class="serial-guide-box">
-        <img src="https://placehold.co/400x150/png?text=Serial+Number+Location" alt="차대번호 예시">
-        <div class="serial-guide-text">💡 차대번호는 모델별로 위치가 다릅니다(BB쉘하단, 중앙모터 옆, BB휄 하단 뒤쪽)</div>
+    <div class="term-item">
+      <label class="term-label"><input type="checkbox" id="privacyAgree" class="agree-item"> 개인정보 수집 및 이용 동의 <span class="required-mark">(필수)</span></label>
+      <button type="button" class="term-view-btn" onclick="openModal('modalPrivacy')">내용보기</button>
+    </div>
+    <div class="term-item">
+      <label class="term-label"><input type="checkbox" id="thirdPartyAgree" class="agree-item"> 개인정보 제3자 제공 동의 <span class="required-mark">(필수)</span></label>
+      <button type="button" class="term-view-btn" onclick="openModal('modalThird')">내용보기</button>
+    </div>
+    <div class="term-item">
+      <label class="term-label"><input type="checkbox" id="marketingAgree" class="agree-item"> 마케팅 정보 수신 동의 <span class="optional-mark">(선택)</span></label>
+      <button type="button" class="term-view-btn" onclick="openModal('modalMarketing')">내용보기</button>
+    </div>
+
+    <div class="form-group" style="margin-top:20px;">
+      <label for="serialNo">제품 번호 (차대번호) <span class="required-mark">*</span></label>
+      <div class="serial-guide-box"><img src="https://placehold.co/400x150/png?text=Serial+Number+Location" alt="차대번호 예시"><div class="serial-guide-text">💡 프레임 하단, 혹은 배터리 안쪽 라벨을 확인해주세요.</div></div>
+      
+      <div class="input-wrapper">
+        <div id="stepBadge" class="step-badge">1단계: 먼저 조회해주세요!</div>
+        <input type="text" id="serialNo" class="highlight-input" placeholder="시리얼 번호를 먼저 입력해주세요" autocomplete="off">
       </div>
-      <input type="text" id="serialNo" placeholder="차대 번호를 먼저 입력해주세요" autocomplete="off">
       <p id="serialError" class="error-msg">올바른 형식이 아닙니다.</p>
     </div>
 
@@ -105,9 +146,8 @@
       <div class="form-group"><label for="userName">이름 <span class="required-mark">*</span></label><input type="text" id="userName" placeholder="성함 입력" autocomplete="off"></div>
       <div class="form-group"><label for="userPhone">전화번호 <span class="required-mark">*</span></label><input type="text" id="userPhone" placeholder="010-0000-0000" maxlength="13" autocomplete="off"></div>
     </div>
-
     <div class="form-row">
-      <div class="form-group"><label for="productSelect">구입하신 모델 <span class="required-mark">*</span></label><select id="productSelect"><option value="">불러오는 중...</option></select></div>
+      <div class="form-group"><label for="productSelect">구입 제품 모델 <span class="required-mark">*</span></label><select id="productSelect"><option value="">불러오는 중...</option></select></div>
       <div class="form-group">
         <label for="storeInput">구입 매장 (검색) <span class="required-mark">*</span></label>
         <input type="text" id="storeInput" placeholder="매장명, 대리점명, 주소 검색" autocomplete="off">
@@ -116,41 +156,113 @@
         <div id="storeInfoDisplay" class="store-info-display"></div>
       </div>
     </div>
-    
     <div class="form-group">
       <label for="receiptFile">구매 영수증 첨부 (이미지) <span class="required-mark">*</span></label>
-      <input type="file" id="receiptFile" accept="image/*,.pdf">
-      <div style="font-size:11px; color:#e74c3c; margin-top:5px; font-weight:bold;">* 5MB 이하의 이미지 파일만 업로드 가능합니다.</div>
+      <input type="file" id="receiptFile" accept="image/jpeg,image/png,application/pdf">
+      <img id="imgPreview">
+      <div style="font-size:11px; color:#e74c3c; margin-top:5px; font-weight:bold;">* 3MB 이하의 JPG, PNG, PDF 파일만 업로드 가능합니다.</div>
     </div>
 
     <button type="button" class="submit-btn" onclick="submitForm()">등록 신청하기</button>
     
     <div id="loadingArea" class="loading-container">
       <div class="spinner"></div>
-      <span class="loading-msg">사진 업로드 및 등록 중입니다... (약 3~5초 소요)</span>
+      <div id="loadingText" class="loading-msg">사진 업로드 및 등록 중입니다...</div>
+      <div id="waitText" class="wait-msg">잠시만 기다려주세요.</div>
     </div>
-
   </form>
   <div class="footer-logo"><img src="https://via.placeholder.com/150x40/231f20/ffffff?text=QUALI+SPORTS" alt="QUALI SPORTS"></div>
 </div>
 
+<div id="modalPrivacy" class="modal-overlay" onclick="closeModal('modalPrivacy')">
+  <div class="modal-box" onclick="event.stopPropagation()">
+    <div class="modal-header">개인정보 수집 및 이용 동의 <button class="modal-close" onclick="closeModal('modalPrivacy')">&times;</button></div>
+    <div class="modal-content">
+      1. 수집 항목: 이름, 연락처, 제품 정보(모델명, 차대번호), 구매 매장 정보, 영수증 이미지<br><br>
+      2. 수집 목적: 정품 등록 확인, 보증 기간 연장, AS 접수 시 고객 식별 및 이력 관리<br><br>
+      3. 보유 기간: 제품 보증 기간 만료 후 1년까지 (단, 법령에 특별한 규정이 있는 경우 관련 법령에 따름)<br><br> 1. 수집 항목: 이름, 연락처, 제품 정보(모델명, 차대번호), 구매 매장 정보, 영수증 이미지<br><br>
+      2. 수집 목적: 정품 등록 확인, 보증 기간 연장, AS 접수 시 고객 식별 및 이력 관리<br><br>
+      3. 보유 기간: 제품 보증 기간 만료 후 1년까지 (단, 법령에 특별한 규정이 있는 경우 관련 법령에 따름)<br><br>
+ 1. 수집 항목: 이름, 연락처, 제품 정보(모델명, 차대번호), 구매 매장 정보, 영수증 이미지<br><br>
+      2. 수집 목적: 정품 등록 확인, 보증 기간 연장, AS 접수 시 고객 식별 및 이력 관리<br><br>
+      3. 보유 기간: 제품 보증 기간 만료 후 1년까지 (단, 법령에 특별한 규정이 있는 경우 관련 법령에 따름)<br><br>
+ 1. 수집 항목: 이름, 연락처, 제품 정보(모델명, 차대번호), 구매 매장 정보, 영수증 이미지<br><br>
+      2. 수집 목적: 정품 등록 확인, 보증 기간 연장, AS 접수 시 고객 식별 및 이력 관리<br><br>
+      3. 보유 기간: 제품 보증 기간 만료 후 1년까지 (단, 법령에 특별한 규정이 있는 경우 관련 법령에 따름)<br><br>
+ 1. 수집 항목: 이름, 연락처, 제품 정보(모델명, 차대번호), 구매 매장 정보, 영수증 이미지<br><br>
+      2. 수집 목적: 정품 등록 확인, 보증 기간 연장, AS 접수 시 고객 식별 및 이력 관리<br><br>
+      3. 보유 기간: 제품 보증 기간 만료 후 1년까지 (단, 법령에 특별한 규정이 있는 경우 관련 법령에 따름)<br><br>
+ 1. 수집 항목: 이름, 연락처, 제품 정보(모델명, 차대번호), 구매 매장 정보, 영수증 이미지<br><br>
+      2. 수집 목적: 정품 등록 확인, 보증 기간 연장, AS 접수 시 고객 식별 및 이력 관리<br><br>
+      3. 보유 기간: 제품 보증 기간 만료 후 1년까지 (단, 법령에 특별한 규정이 있는 경우 관련 법령에 따름)<br><br>
+
+      4. 동의 거부 권리: 본 동의를 거부할 수 있으나, 미동의 시 정품 등록 및 보증 연장 혜택을 받으실 수 없습니다.
+    </div>
+    <div class="modal-footer"><button class="modal-btn" onclick="closeModal('modalPrivacy')">확인</button></div>
+  </div>
+</div>
+
+<div id="modalThird" class="modal-overlay" onclick="closeModal('modalThird')">
+  <div class="modal-box" onclick="event.stopPropagation()">
+    <div class="modal-header">개인정보 제3자 제공 동의 <button class="modal-close" onclick="closeModal('modalThird')">&times;</button></div>
+    <div class="modal-content">
+      1. 제공받는 자: 구매하신 대리점 및 퀄리스포츠 협력 AS 지정점<br><br>
+      2. 제공 목적: 제품 수리 및 점검, 부품 교체 등 원활한 AS 서비스 제공<br><br>
+      3. 제공 항목: 이름, 연락처, 차대번호, 차종<br><br>
+      4. 보유 기간: 서비스 제공 목적 달성 시까지
+    </div>
+    <div class="modal-footer"><button class="modal-btn" onclick="closeModal('modalThird')">확인</button></div>
+  </div>
+</div>
+
+<div id="modalMarketing" class="modal-overlay" onclick="closeModal('modalMarketing')">
+  <div class="modal-box" onclick="event.stopPropagation()">
+    <div class="modal-header">마케팅 정보 수신 동의 <button class="modal-close" onclick="closeModal('modalMarketing')">&times;</button></div>
+    <div class="modal-content">
+      1. 신제품 출시 소식, 할인 프로모션, 이벤트 혜택 등 다양한 정보를 SMS, 알림톡 등으로 받아보실 수 있습니다.<br><br>
+      2. 동의하지 않으셔도 정품 등록 서비스 이용에는 제한이 없습니다.
+    </div>
+    <div class="modal-footer"><button class="modal-btn" onclick="closeModal('modalMarketing')">확인</button></div>
+  </div>
+</div>
+
 <script>
   const WEB_APP_URL = "https://script.google.com/macros/s/AKfycbyy02EOo87dG4BWco1kbLO3O9BXwFSUKy-olHVwUim_E_07Azl5tl-e40UO1uBqoyeJ/exec"; 
-  const MAX_FILE_SIZE = 5 * 1024 * 1024;
+  const MAX_FILE_SIZE = 3 * 1024 * 1024;
   let ALL_STORES = [], STORE_DATA_MAP = {}; 
+  let GLOBAL_RETRY_COUNT = 0;
+
+  function openModal(id) { document.getElementById(id).style.display = 'flex'; }
+  function closeModal(id) { document.getElementById(id).style.display = 'none'; }
+
+  const allAgree = document.getElementById("allAgree");
+  const agreeItems = document.querySelectorAll(".agree-item");
+  allAgree.addEventListener("change", function() {
+    agreeItems.forEach(item => item.checked = allAgree.checked);
+  });
+  agreeItems.forEach(item => {
+    item.addEventListener("change", function() {
+      const allChecked = Array.from(agreeItems).every(i => i.checked);
+      allAgree.checked = allChecked;
+    });
+  });
 
   window.addEventListener("pageshow", function(event) {
     if (event.persisted || (window.performance && window.performance.navigation.type === 2)) {
       document.getElementById("registForm").reset();
       document.getElementById("storeInfoDisplay").style.display = "none";
       document.getElementById("serialError").style.display = "none";
+      document.getElementById("imgPreview").style.display = "none";
       setButtonState(true);
-      document.getElementById("loadingArea").style.display = "none"; // 로딩 숨김
+      document.getElementById("loadingArea").style.display = "none";
+      
+      document.getElementById("serialNo").classList.add("highlight-input");
+      document.getElementById("stepBadge").style.display = "block";
     }
   });
 
   document.addEventListener("DOMContentLoaded", function() {
-    fetch(WEB_APP_URL).then(r => r.json()).then(data => {
+    fetchWithRetry(WEB_APP_URL, {}, 3).then(data => { 
         const productSelect = document.getElementById("productSelect");
         updateSelectOptions(productSelect, data.products, "제품 모델 선택");
         ALL_STORES = data.stores; STORE_DATA_MAP = {}; 
@@ -160,15 +272,31 @@
   });
 
   const receiptFile = document.getElementById("receiptFile");
+  const previewImg = document.getElementById("imgPreview");
+  
   receiptFile.addEventListener("change", function() {
-    if (this.files.length > 0 && this.files[0].size > MAX_FILE_SIZE) { alert("❌ 파일 용량이 너무 큽니다! (5MB 제한)"); this.value = ""; }
+    if (this.files.length > 0) {
+      if(this.files[0].size > MAX_FILE_SIZE) { 
+        alert("❌ 파일 용량이 3MB를 초과합니다!\n용량을 줄여서 다시 올려주세요."); 
+        this.value = ""; 
+        previewImg.style.display = "none";
+        return; 
+      }
+      const reader = new FileReader();
+      reader.onload = function(e) {
+        previewImg.src = e.target.result;
+        previewImg.style.display = "block";
+      }
+      reader.readAsDataURL(this.files[0]);
+    } else {
+      previewImg.style.display = "none";
+    }
   });
 
   const storeInput = document.getElementById("storeInput");
   const storeCodeInput = document.getElementById("storeCode");
   const suggestions = document.getElementById("suggestions");
   const infoDisplay = document.getElementById("storeInfoDisplay");
-
   storeInput.addEventListener("input", function() {
     const keyword = this.value.toLowerCase().trim();
     suggestions.innerHTML = ""; infoDisplay.style.display = "none"; 
@@ -184,7 +312,6 @@
       });
     } else { suggestions.style.display = "block"; const li = document.createElement("li"); li.innerText = "검색 결과가 없습니다."; li.className = "no-result-item"; suggestions.appendChild(li); }
   });
-
   function selectStore(storeObj) {
     storeInput.value = storeObj.name; storeCodeInput.value = storeObj.code; suggestions.style.display = "none"; 
     infoDisplay.style.display = "block"; infoDisplay.innerHTML = `📍 <b>주소:</b> ${storeObj.addr || "없음"}<br>📞 <b>연락처:</b> ${storeObj.phone || "없음"}`; storeInput.style.border = "1px solid #ccc";
@@ -201,17 +328,87 @@
   const serialInput = document.getElementById("serialNo");
   const serialError = document.getElementById("serialError");
   const submitBtn = document.querySelector(".submit-btn");
+  const stepBadge = document.getElementById("stepBadge");
+  
+  serialInput.addEventListener("focus", function() {
+    this.classList.remove("highlight-input"); 
+    if(stepBadge) stepBadge.style.display = "none"; 
+  });
+
   serialInput.addEventListener("blur", function() {
-    const val = serialInput.value.trim(); if (val.length < 1) return; 
-    serialError.style.display = "block"; serialError.style.color = "var(--ci-blue)"; serialError.innerText = "확인 중..."; setButtonState(false);
-    fetch(WEB_APP_URL + "?type=check&no=" + val).then(r => r.json()).then(d => {
-        if (d.status === "ok") { serialError.style.color = "var(--ci-green)"; serialError.innerText = "✅ " + d.message; setButtonState(true); } 
-        else { serialError.style.color = "#e74c3c"; serialError.innerText = "❌ " + d.message; setButtonState(false); }
+    const val = serialInput.value.trim(); 
+    if (val.length < 1) {
+      serialError.style.display = "none"; 
+      serialError.innerText = "";
+      setButtonState(true);
+      
+      // 다시 켜기
+      this.classList.add("highlight-input");
+      if(stepBadge) stepBadge.style.display = "block";
+      
+      // ★ 모델명 드롭박스 초기화 추가됨
+      const select = document.getElementById("productSelect");
+      if(select) select.value = ""; 
+
+      return; 
+    }
+    serialError.style.display = "block"; 
+    serialError.style.color = "var(--ci-blue)"; 
+    serialError.innerText = "확인 중..."; 
+    setButtonState(false);
+    fetchWithRetry(WEB_APP_URL + "?type=check&no=" + val, {}, 2).then(d => {
+        if (d.status === "ok") { 
+          serialError.style.color = "var(--ci-green)"; 
+          serialError.innerText = `✅ 확인됨 (${d.model})`; 
+          setButtonState(true); 
+          const select = document.getElementById("productSelect");
+          if(d.model) select.value = d.model; 
+        } 
+        else { 
+          serialError.style.color = "#e74c3c"; 
+          serialError.innerText = "❌ " + d.message; 
+          setButtonState(false); 
+        }
     }).catch(e => { serialError.innerText = ""; setButtonState(true); });
   });
 
-  function updateSelectOptions(el, items, defText) { el.innerHTML = ""; const opt = document.createElement("option"); opt.value = ""; opt.text = defText; el.add(opt); if(items) items.forEach(i => { const o = document.createElement("option"); o.value = i; o.text = i; el.add(o); }); }
+  function updateSelectOptions(el, items, defText) { 
+    el.innerHTML = ""; 
+    const opt = document.createElement("option"); 
+    opt.value = ""; 
+    opt.text = defText; 
+    opt.disabled = true; 
+    opt.selected = true; 
+    opt.hidden = true;   
+    el.add(opt); 
+    if(items) {
+      items.forEach(i => { 
+        const o = document.createElement("option"); 
+        o.value = i; 
+        o.text = i; 
+        el.add(o); 
+      }); 
+    }
+  }
+
   function setButtonState(e) { submitBtn.disabled = !e; submitBtn.style.backgroundColor = e ? "var(--ci-blue)" : "#ccc"; }
+
+  async function fetchWithRetry(url, options = {}, retries = 3, backoff = 1000) {
+    try {
+      const response = await fetch(url, options);
+      if (!response.ok) throw new Error("Server Busy");
+      const json = await response.json();
+      return json;
+    } catch (error) {
+      if (retries > 0) {
+        GLOBAL_RETRY_COUNT++; 
+        const waitText = document.getElementById("waitText");
+        if(waitText) waitText.innerText = `접속량이 많아 대기 중입니다... (${retries}회 재시도)`;
+        await new Promise(resolve => setTimeout(resolve, backoff));
+        return fetchWithRetry(url, options, retries - 1, backoff * 2); 
+      } else { throw error; }
+    }
+  }
 
   function submitForm() {
     const userName = document.getElementById("userName").value;
@@ -220,40 +417,57 @@
     const storeName = document.getElementById("storeInput").value;
     const storeCode = document.getElementById("storeCode").value; 
     const serialNo = document.getElementById("serialNo").value;
+    
     const privacyAgree = document.getElementById("privacyAgree").checked;
+    const thirdPartyAgree = document.getElementById("thirdPartyAgree").checked;
     const marketingAgree = document.getElementById("marketingAgree").checked;
     const fileInput = document.getElementById("receiptFile");
 
-    if (!privacyAgree) return alert("개인정보 수집 및 이용에 동의해야 합니다.");
-    if (!serialNo) return alert("차대 번호를 입력하고 확인받으세요.");
+    if (!privacyAgree) return alert("개인정보 수집 및 이용에 동의해야 합니다. (필수)");
+    if (!thirdPartyAgree) return alert("개인정보 제3자 제공에 동의해야 합니다. (필수)");
+    if (!serialNo) return alert("제품 번호를 입력하고 확인받으세요.");
     if (!userName) return alert("이름을 입력해주세요.");
     if (!userPhone) return alert("전화번호를 입력해주세요.");
     if (!product) return alert("제품 모델을 선택해주세요.");
     if (!storeName || !storeCode) return alert("구입 매장을 목록에서 정확히 선택해주세요.");
     if (fileInput.files.length === 0) return alert("구매 영수증은 필수 항목입니다.");
-    if (fileInput.files[0].size > MAX_FILE_SIZE) return alert("파일 용량이 너무 큽니다!");
+    if (fileInput.files[0].size > MAX_FILE_SIZE) return alert("파일 용량이 3MB를 초과합니다.");
 
-    setButtonState(false); // 버튼 비활성화
-    document.getElementById("loadingArea").style.display = "flex"; // 로딩 애니메이션 표시
+    setButtonState(false);
+    document.getElementById("loadingArea").style.display = "flex";
+    document.getElementById("waitText").innerText = "잠시만 기다려주세요.";
+    GLOBAL_RETRY_COUNT = 0; 
 
     const formData = { userName, userPhone, product, storeName, storeCode, serialNo, marketingConsent: marketingAgree };
     const file = fileInput.files[0];
     const reader = new FileReader();
     reader.onload = function(e) {
       formData.fileName = file.name; formData.mimeType = file.type; formData.fileData = e.target.result.split(",")[1];
-      sendData(formData);
+      
+      fetchWithRetry(WEB_APP_URL, { 
+        method: "POST", headers: { "Content-Type": "text/plain;charset=utf-8" }, body: JSON.stringify(formData) 
+      }, 5, 1000) 
+      .then(res => {
+        if (res.result === "success") {
+          alert("✅ 제품 등록이 완료되었습니다!\n등록 내역 확인 페이지로 자동 이동합니다.");
+          window.location.href = "./product_check.html?name=" + encodeURIComponent(formData.userName) + "&phone=" + encodeURIComponent(formData.userPhone);
+        } 
+        else if (res.message.includes("이미 등록된 제품") && GLOBAL_RETRY_COUNT > 0) {
+           alert("✅ (재접속 성공) 제품 등록이 완료되었습니다!\n등록 내역 확인 페이지로 자동 이동합니다.");
+           window.location.href = "./product_check.html?name=" + encodeURIComponent(formData.userName) + "&phone=" + encodeURIComponent(formData.userPhone);
+        }
+        else { 
+          alert("오류 발생: " + res.message); 
+          setButtonState(true); 
+          document.getElementById("loadingArea").style.display = "none"; 
+        }
+      })
+      .catch(e => { 
+        alert("접속자가 많아 등록에 실패했습니다.\n잠시 후 다시 시도해주세요."); 
+        setButtonState(true); document.getElementById("loadingArea").style.display = "none"; 
+      });
     };
     reader.readAsDataURL(file);
-  }
-
-  function sendData(dataObj) {
-    fetch(WEB_APP_URL, { method: "POST", headers: { "Content-Type": "text/plain;charset=utf-8" }, body: JSON.stringify(dataObj) })
-    .then(r => r.json()).then(res => {
-      if (res.result === "success") {
-        alert("✅ 차대번호 등록이 완료되었습니다!\n등록 내역 확인 페이지로 자동 이동합니다.");
-        window.location.href = "./product_check.html?name=" + encodeURIComponent(dataObj.userName) + "&phone=" + encodeURIComponent(dataObj.userPhone);
-      } else { alert("오류 발생: " + res.message); setButtonState(true); document.getElementById("loadingArea").style.display = "none"; }
-    }).catch(e => { alert("서버 통신 오류"); setButtonState(true); document.getElementById("loadingArea").style.display = "none"; });
   }
   document.addEventListener('keydown', function(e) { if (e.keyCode === 123 || (e.ctrlKey && e.shiftKey && e.keyCode === 73) || (e.ctrlKey && e.keyCode === 85)) { e.preventDefault(); return false; } });
 </script>
