@@ -124,6 +124,7 @@ body, html {
 .loading-msg { font-size: 13px; font-weight: bold; color: var(--ci-dark); }
 .wait-msg { font-size: 11px; color: #666; margin-top: 3px; }
 
+/* Footer (공통) */
 .footer-logo { text-align: center; margin-top: 30px; padding-top: 20px; border-top: 1px dashed #eee; }
 .footer-logo img { height: 24px; opacity: 0.8; }
 
@@ -175,7 +176,11 @@ body, html {
 .btn-title { display: block; font-size: 19px; font-weight: 700; margin-bottom: 6px; }
 .btn-desc { display: block; font-size: 12px; opacity: 0.9; font-weight: 400; }
 
-.footer-area { margin-top: 50px; border-top: 1px solid #f0f0f0; padding-top: 30px; }
+/* [수정] 메인 페이지 Footer 영역 테두리 제거 */
+.footer-area { margin-top: 50px; border-top: none; padding-top: 30px; }
+/* 메인 페이지 내부의 footer-logo는 공통 border를 무시하고 초기화 */
+.footer-area .footer-logo { border-top: none; margin-top: 0; padding-top: 0; }
+
 .footer-info { font-size: 12px; color: #aaa; line-height: 1.5; }
 
 .inquiry-container {

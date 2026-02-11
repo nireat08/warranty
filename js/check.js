@@ -32,10 +32,26 @@ document.addEventListener("DOMContentLoaded", function() {
         setTimeout(searchData, 300); 
     }
 
+    // [New] 커스텀 알림창 표시 함수
+    function showAlert(message) {
+        const modal = document.getElementById('systemAlert');
+        const msgBox = document.getElementById('systemAlertMsg');
+        const btn = document.getElementById('systemAlertBtn');
+        if (modal && msgBox && btn) {
+            msgBox.innerHTML = message.replace(/\n/g, "<br>");
+            modal.style.display = 'flex';
+            btn.onclick = function() { modal.style.display = 'none'; };
+        } else {
+            alert(message); // 만약 모달 요소가 없으면 기본 alert 사용
+        }
+    }
+
     function searchData() {
         const name = nameInput.value.trim(); 
         const phone = phoneInput.value.trim();
-        if (!name || !phone) return alert("이름과 연락처를 모두 입력해주세요.");
+        
+        // [수정] 기본 alert 대신 커스텀 모달 사용
+        if (!name || !phone) return showAlert("이름과 연락처를 모두 입력해주세요.");
 
         resultContainer.innerHTML = ""; 
         countMsg.style.display = "none"; 
@@ -71,14 +87,12 @@ document.addEventListener("DOMContentLoaded", function() {
     }
 
     function createCard(data, index, total) {
-        // GAS에서 isSpecial=true면 year가 이미 "2026"으로 덮어씌워져 옴
         const year = data.year || "2026";
         const dateStr = formatDate(data.date);
         
         let tFrame="2년", tMotor="1년", tCont="6개월";
         if (year === "2025") { tFrame="1년"; tMotor="6개월"; tCont="6개월"; }
 
-        // [New] 특별 적용 뱃지 생성
         let specialBadgeHTML = "";
         if (data.isSpecial) {
             specialBadgeHTML = `<span style="display:inline-block; margin-left:5px; padding:3px 6px; background:#e67e22; color:white; border-radius:4px; font-size:11px;">🏅 특별 보증 연장 적용됨</span>`;
