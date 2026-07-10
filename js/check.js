@@ -108,8 +108,8 @@ document.addEventListener("DOMContentLoaded", function () {
         const year = data.year || "2026";
         const dateStr = formatDate(data.date);
 
-        let tFrame = "1년", tMotor = "6개월", tCont = "6개월";
-        if (year === "2026") { tFrame = "2년"; tMotor = "1년"; tCont = "6개월"; }
+        let tFrame = "1년(10,000km)", tMotorBattery = "6개월", tElectric = "6개월";
+        if (year === "2026") { tFrame = "2년(15,000km)"; tMotorBattery = "1년(10,000km)"; tElectric = "6개월"; }
 
         let specialBadgeHTML = "";
         if (data.isSpecial) {
@@ -133,8 +133,8 @@ document.addEventListener("DOMContentLoaded", function () {
                 <div class="warranty-box">
                 <div class="warranty-grid">
                     <div class="w-item"><strong>프레임:</strong> <span>${tFrame}</span></div>
-                    <div class="w-item"><strong>모터:</strong> <span>${tMotor}</span></div>
-                    <div class="w-item"><strong>컨트롤러:</strong> <span>${tCont}</span></div>
+                    <div class="w-item"><strong>모터/배터리:</strong> <span>${tMotorBattery}</span></div>
+                    <div class="w-item"><strong>전기계통:</strong> <span>${tElectric}</span></div>
                     <div class="receipt-note">💡 모든 보증은 영수증 날짜 기준입니다.</div>
                 </div>
                 </div>
