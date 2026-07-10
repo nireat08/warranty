@@ -116,24 +116,6 @@ document.addEventListener("DOMContentLoaded", function () {
             specialBadgeHTML = `<span style="display:inline-block; margin-left:5px; padding:3px 6px; background:#e67e22; color:white; border-radius:4px; font-size:11px;">🏅 특별 보증 연장 적용됨</span>`;
         }
 
-        let promoHTML = "";
-        const regDate = new Date(data.date);
-        const today = new Date();
-        const diffDays = Math.ceil(Math.abs(today - regDate) / (1000 * 60 * 60 * 24));
-        const HEAD_OFFICE_LINK = "https://www.qualisports.kr/product/detail.html?product_no=4644";
-
-        if (year === "2026" && diffDays <= 14) {
-            let targetLink = HEAD_OFFICE_LINK;
-            if (data.isCredit && data.storeLink) targetLink = data.storeLink;
-
-            const btnId = `promoBtn_${data.id}`;
-            promoHTML = `<div id="${btnId}" class="promo-link" data-link="${targetLink}">🎉 특별 구매 혜택 바로가기 (D-${15 - diffDays})</div>`;
-
-            setTimeout(() => {
-                const btn = document.getElementById(btnId);
-                if (btn) btn.addEventListener("click", function () { handlePromoClick(btn, data); });
-            }, 0);
-        }
 
         const cardHTML = `
             <div class="result-card">
@@ -157,48 +139,9 @@ document.addEventListener("DOMContentLoaded", function () {
                 </div>
                 </div>
             </div>
-            ${promoHTML}
             </div>
         `;
         resultContainer.insertAdjacentHTML('beforeend', cardHTML);
-    }
-
-    function handlePromoClick(btnElement, data) {
-        const targetLink = btnElement.getAttribute("data-link");
-        btnElement.innerText = "혜택 페이지로 이동 중... 🔄";
-        btnElement.style.backgroundColor = "#ccc";
-        btnElement.style.pointerEvents = "none";
-
-        const logData = {
-            type: "log_click",
-            name: data.name,
-            phone: data.phone,
-            regId: data.regId || data.id,
-            storeName: data.store,
-            storeCode: data.storeCode,
-            model: data.product
-        };
-
-        getRecaptchaToken('promoClick').then(token => {
-            return fetchWithRetry(API_URL, {
-                method: "POST", 
-                headers: { 
-                    "Content-Type": "text/plain;charset=utf-8",
-                    "x-recaptcha-token": token
-                }, 
-                body: JSON.stringify(logData)
-            }, 2, 500);
-        })
-            .then(() => { window.open(targetLink, "_blank"); })
-            .catch(() => { window.open(targetLink, "_blank"); })
-            .finally(() => {
-                // 새 창으로 이동 후 버튼을 다시 클릭 가능 상태로 복원
-                setTimeout(() => {
-                    btnElement.innerText = "🎉 특별 구매 혜택 바로가기";
-                    btnElement.style.backgroundColor = "";
-                    btnElement.style.pointerEvents = "auto";
-                }, 1000);
-            });
     }
 
     function formatDate(d) {
